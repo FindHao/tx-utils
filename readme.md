@@ -29,3 +29,32 @@ python3 visualize.py --start="2018-06-09 02:42:30" --end="2018-06-09 02:43:15" -
 
 If you don't define the `--start` and `--end`, you will get the whole logs' data.
 
+# tx-utils
+
+这一个nvidia jetson tegra x系列的工具包。主要用来记录tx板子的状态，并将其写入excel表格，便于生成图表。
+
+## 安装
+
+直接从release下载zip压缩包解压即可。
+
+## 使用
+
+### tegrastats2
+
+Nvidia自带了一个tegrastats工具，默认位于home目录下。可以用来查看cpu和gpu的一些状态信息，我写了这个脚本，在其输出结果中加入了时间。
+
+ ```bash
+ sudo python3 tegrastats2.py --bin=/home/nvidia/tegrastats --output=./a.log
+ ```
+
+你应该用sudo来执行这个脚本，因为sudo权限才能让tegrastats获得到gpu的状态。
+`--bin`是tegrastats的路径，`--output`是log日志输出的路径。
+
+### visualize
+
+这是一个将原始日志内容格式化到excel文件里的工具。
+
+```bash
+python3 visualize.py --start="2018-06-09 02:42:30" --end="2018-06-09 02:43:15" --input="/home/find/ddown/a.log" --output=./freq.xls
+```
+如果你不指定`--start` 和 `--end`，那么将针对整个日志文件进行格式化。

@@ -1,6 +1,12 @@
 # 读写2003 excel
 import argparse
-import xlwt
+from openpyxl import Workbook
+from openpyxl.chart import (
+    LineChart,
+    Reference,
+)
+from openpyxl.chart.layout import Layout, ManualLayout
+
 import re
 
 
@@ -51,40 +57,68 @@ def filter_content_from_raw_log(start_time, end_time, file_path):
 
 def write_status_to_xls(status, xls_file='./log.xls'):
     """将获取的内容写到excel文件里"""
-    wb = xlwt.Workbook()
-    sheet = wb.add_sheet("cpu")
+    wb = Workbook()
+    sheet_name = 'cpu'
+    sheet = wb.active
+    sheet.title = sheet_name
     cpu_status = ['cpu0', 'cpu1', 'cpu2', 'cpu3', 'cpu4', 'cpu5']
-
+    # 真正的数据从第三行开始
+    base_offset_value = 3
     # cpu频率
-    sheet.write(0, 0, 'cpu frequency')
+    sheet.cell(row=1, column=1, value='cpu frequency')
     for i in range(6):
-        sheet.write(1, i, cpu_status[i])
+        sheet.cell(row=2, column=i + 1, value=cpu_status[i])
     for i in range(0, len(status.cpu_freq[0])):
         for j in range(0, 6):
-            sheet.write(i + 2, j, status.cpu_freq[j][i])
+            sheet.cell(row=i + base_offset_value, column=j + 1, value=status.cpu_freq[j][i])
     # cpu占用率
-    base_offset_cpu_utilization = 7
-    sheet.write(0, base_offset_cpu_utilization, 'cpu utilization')
+    base_offset_cpu_utilization = 8
+    sheet.cell(row=1, column=base_offset_cpu_utilization, value='cpu utilization')
     for i in range(6):
-        sheet.write(1, i + base_offset_cpu_utilization, cpu_status[i])
+        sheet.cell(row=2, column=i + base_offset_cpu_utilization, value=cpu_status[i])
     for i in range(0, len(status.cpu_utilization[0])):
         for j in range(0, 6):
-            sheet.write(i + 2, j + base_offset_cpu_utilization, status.cpu_utilization[j][i])
+            sheet.cell(row=i + base_offset_value, column=j + base_offset_cpu_utilization,
+                       value=status.cpu_utilization[j][i])
     # ram
-    base_offset_ram = 14
-    sheet.write(0, base_offset_ram, 'ram')
+    base_offset_ram = 15
+    sheet.cell(row=2, column=base_offset_ram, value='ram')
     for i in range(0, len(status.ram)):
-        sheet.write(i + 2, base_offset_ram, status.ram[i])
+        sheet.cell(row=i + base_offset_value, column=base_offset_ram, value=status.ram[i])
     # emc
-    base_offset_emc = 15
-    sheet.write(0, base_offset_emc, 'emc')
+    base_offset_emc = 16
+    sheet.cell(row=2, column=base_offset_emc, value='emc')
     for i in range(0, len(status.emc)):
-        sheet.write(i + 2, base_offset_emc, status.emc[i])
+        sheet.cell(row=i + base_offset_value, column=base_offset_emc, value=status.emc[i])
     # gpu
-    base_offset_gpu = 16
-    sheet.write(0, base_offset_gpu, 'gpu')
+    base_offset_gpu = 17
+    sheet.cell(row=2, column=base_offset_gpu, value='gpu')
     for i in range(0, len(status.gpu)):
-        sheet.write(i + 2, base_offset_gpu, status.gpu[i])
+        sheet.cell(row=i + base_offset_value, column=base_offset_gpu, value=status.gpu[i])
+
+    # 制作line chart
+    chart = LineChart()
+    chart.y_axis.title = 'Rate'
+    # where is the data
+    data = Reference(sheet, min_col=base_offset_cpu_utilization, min_row=2,
+                     max_row=len(status.gpu) + base_offset_value - 1, max_col=base_offset_cpu_utilization + 5)
+    data_gpu = Reference(sheet, min_col=base_offset_gpu, min_row=2, max_row=len(status.gpu) + base_offset_value - 1,
+                         max_col=base_offset_gpu)
+    chart.add_data(data, titles_from_data=True)
+    chart.add_data(data_gpu, titles_from_data=True)
+    # chart.layout = Layout(
+    #     manualLayout=ManualLayout(
+    #         x=2, y=2,
+    #         h=2, w=2,
+    #     )
+    # )
+    # chart.add_series({
+    #     # 'categories': '=%s!$H$3:$H$%d' % (sheet_name, 2+len(status.gpu)),
+    #     'values': '=%s!$H$3:$H$%d' % (sheet_name, 2+len(status.gpu)),
+    #     'line': {'color': 'red'},
+    # }
+    # )
+    sheet.add_chart(chart, 'A%d' % (len(status.gpu) + base_offset_value + 1))
 
     wb.save(xls_file)
     print("Done!")
