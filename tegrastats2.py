@@ -27,8 +27,8 @@ def work(write_to_log=False):
     global LOG_FILE
     cmds = [BIN_PATH]
     p = subprocess.Popen(cmds, stdout=subprocess.PIPE)
-    LOG_FILE = open(LOG_FILE_PATH, 'a')
     if write_to_log:
+        LOG_FILE = open(LOG_FILE_PATH, 'a')
         while 1:
             # 继续处理
             current_stat = p.stdout.readline().decode().strip()
@@ -44,7 +44,6 @@ def work(write_to_log=False):
 
 
 if __name__ == '__main__':
-    global BIN_PATH, LOG_FILE_PATH
     parser = argparse.ArgumentParser(description='调用tegrastats，并记录输出到log文件里')
     parser.add_argument('-b', '--bin', metavar='where tegrastats is', required=False, dest='bin_path', action='store')
     # the script will not write to log file unless you define the output log file path
@@ -56,5 +55,6 @@ if __name__ == '__main__':
         write_to_log = True
     else:
         write_to_log = False
-    BIN_PATH = args.bin_path
+    if args.bin_path:
+        BIN_PATH = args.bin_path
     work(write_to_log)
