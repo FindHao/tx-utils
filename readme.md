@@ -61,4 +61,5 @@ Nvidia自带了一个tegrastats工具，默认位于home目录下。可以用来
 python3 visualize.py --start="2018-06-09 02:42:30" --end="2018-06-09 02:43:15" --input="/home/find/ddown/a.log" --output=./freq.xls
 ```
 ![](http://www.findhao.net/wp-content/uploads/2018/06/tx2-utils.linechar.jpg)
+
 如果你不指定`--start` 和 `--end`，那么将针对整个日志文件进行格式化。
