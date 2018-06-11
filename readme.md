@@ -52,9 +52,13 @@ Nvidia自带了一个tegrastats工具，默认位于home目录下。可以用来
 
 ### visualize
 
-这是一个将原始日志内容格式化到excel文件里的工具。
+将原始日志内容格式化到excel文件里，并自动生成cpu占用率和gpu占用率的折线图。
+
+![](http://www.findhao.net/wp-content/uploads/2018/06/tx2-utils.excel_.jpg)
+
 
 ```bash
 python3 visualize.py --start="2018-06-09 02:42:30" --end="2018-06-09 02:43:15" --input="/home/find/ddown/a.log" --output=./freq.xls
 ```
+![](http://www.findhao.net/wp-content/uploads/2018/06/tx2-utils.linechar.jpg)
 如果你不指定`--start` 和 `--end`，那么将针对整个日志文件进行格式化。

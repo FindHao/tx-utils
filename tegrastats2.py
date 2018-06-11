@@ -40,7 +40,7 @@ def work(write_to_log=False):
             # 继续处理
             current_stat = p.stdout.readline().decode().strip()
             text = "%s:\n%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), current_stat)
-            print(text)
+            # print(text)
 
 
 if __name__ == '__main__':
