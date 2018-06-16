@@ -29,18 +29,15 @@ def work(write_to_log=False):
     p = subprocess.Popen(cmds, stdout=subprocess.PIPE)
     if write_to_log:
         LOG_FILE = open(LOG_FILE_PATH, 'a')
-        while 1:
-            # 继续处理
-            current_stat = p.stdout.readline().decode().strip()
-            text = "%s:\n%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), current_stat)
-            print(text)
+    while 1:
+        current_stat = p.stdout.readline().decode().strip()
+        if current_stat == '':
+            print("tegrastats error")
+            break
+        text = "%s:\n%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), current_stat)
+        print(text)
+        if write_to_log:
             LOG_FILE.write(text + '\n')
-    else:
-        while 1:
-            # 继续处理
-            current_stat = p.stdout.readline().decode().strip()
-            text = "%s:\n%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), current_stat)
-            # print(text)
 
 
 if __name__ == '__main__':
