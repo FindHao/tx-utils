@@ -17,15 +17,16 @@ def exit_pro(signum, frame):
 signal.signal(signal.SIGINT, exit_pro)
 signal.signal(signal.SIGTERM, exit_pro)
 # where the tegrastats binary file is
-BIN_PATH = '/home/nvidia/tegrastats'
+BIN_PATH = 'tegrastats'
 LOG_FILE_PATH = './freq.log'
 
 
-def work(write_to_log=False):
+def work(write_to_log=False, your_args=''):
     """将tegrastats加上时间戳
     @:arg write_to_log 是否写入log文件"""
     global LOG_FILE
     cmds = [BIN_PATH]
+    cmds += your_args.split()
     p = subprocess.Popen(cmds, stdout=subprocess.PIPE)
     if write_to_log:
         LOG_FILE = open(LOG_FILE_PATH, 'a')
@@ -46,6 +47,8 @@ if __name__ == '__main__':
     # the script will not write to log file unless you define the output log file path
     parser.add_argument('-o', '--output', metavar='write the log file to here', required=False, dest='log_file_path',
                         action='store')
+    parser.add_argument('-p', '--params', metavar='additional arguments of tegrastats', required=False, dest='your_args',
+                        action='store')
     args = parser.parse_args()
     if args.log_file_path:
         LOG_FILE_PATH = args.log_file_path
@@ -54,4 +57,4 @@ if __name__ == '__main__':
         write_to_log = False
     if args.bin_path:
         BIN_PATH = args.bin_path
-    work(write_to_log)
+    work(write_to_log, args.your_args)

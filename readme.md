@@ -12,10 +12,14 @@ You can just download released zip file and unzip it.
 It's a enhanced pack of Nvidia tegrastats tool. The origin tegrastats locates in `~/tegrastats` and it's a executable binary file which shows the current status of tx's cpus and gpu. However it not open sourced and you can not change anything about what it outputs. And I warp it in this script and add time mark. 
  
  ```bash
- sudo python3 tegrastats2.py --bin=/home/nvidia/tegrastats --output=./a.log
+ sudo python3 tegrastats2.py --bin=/home/nvidia/tegrastats --output=./a.log --params "--interval 500"
  ```
 It should be under sudo privilege if you want to get the gpu status.
 `--bin` is the path of original tegrastats location and `--output` defines the file path you want to write to.
+
+`--params` adds the optional arguments to `tegrastats` which has support more functions from jetpack 3.2. `--interval 500` means the interval of every probe. 
+
+Tegrastats has more options from jetpack 3.2. And I add the tegrastats_jp3.1 and tegrastats_jp_3.2 to this project. You can just download and run tegrastats_jp_3.2 on tx of jetpack 3.1.
 
 ### visualize
 
@@ -44,11 +48,13 @@ If you don't define the `--start` and `--end`, you will get the whole logs' data
 Nvidia自带了一个tegrastats工具，默认位于home目录下。可以用来查看cpu和gpu的一些状态信息，我写了这个脚本，在其输出结果中加入了时间。
 
  ```bash
- sudo python3 tegrastats2.py --bin=/home/nvidia/tegrastats --output=./a.log
+ sudo python3 tegrastats2.py --bin=/home/nvidia/tegrastats --output=./a.log --params "--interval 500"
  ```
 
 你应该用sudo来执行这个脚本，因为sudo权限才能让tegrastats获得到gpu的状态。
 `--bin`是tegrastats的路径，`--output`是log日志输出的路径。
+
+`--params`是附加给`tegrastats`的参数，自从jetpack3.2以后，nvidia提供的tegrastats工具越来越强大，给了更多了运行参数。同时我也将新旧版本的tegrastats加到了这个项目中。
 
 ### visualize
 

@@ -8,6 +8,8 @@ from openpyxl.chart import (
 from openpyxl.chart.layout import Layout, ManualLayout
 
 import re
+# 自从jetpack3.2以后，tegrastats功能更强大了。
+tegrastats_version = 3.2
 
 
 class Status:
@@ -34,8 +36,11 @@ def filter_content_from_raw_log(start_time, end_time, file_path):
     if not end_time:
         end_time = ''
     reg = re.compile(r'%s[\s\S]+%s' % (start_time, end_time))
-    reg2 = re.compile(
-        r'RAM (\d+).+?cpu \[(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+)\] EMC (\d+)%@.+?GR3D (\d+)%')
+    if tegrastats_version >= 3.2:
+        reg2 = re.compile(
+            r'RAM (\d+).+?CPU \[(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+)\] EMC_FREQ (\d+)%@.+?GR3D_FREQ (\d+)%')
+    else:
+        reg2 = re.compile(r'RAM (\d+).+?cpu \[(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+)\] EMC (\d+)%@.+?GR3D (\d+)%')
     result = reg.findall(content)
     status = Status()
     if result:
