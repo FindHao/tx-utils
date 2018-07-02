@@ -8,6 +8,7 @@ from openpyxl.chart import (
 from openpyxl.chart.layout import Layout, ManualLayout
 
 import re
+
 # 自从jetpack3.2以后，tegrastats功能更强大了。
 tegrastats_version = 3.2
 
@@ -29,18 +30,21 @@ def filter_content_from_raw_log(start_time, end_time, file_path):
     """将频率数据从原始log中提取出来"""
     with open(file_path, 'r') as fin:
         content = fin.read()
-    print(start_time)
-    print(end_time)
+    print("start time:\t%s" % start_time)
+    print("end time:\t%s" % end_time)
     if not start_time:
         start_time = ''
     if not end_time:
         end_time = ''
     reg = re.compile(r'%s[\s\S]+%s' % (start_time, end_time))
     if tegrastats_version >= 3.2:
+        # fix bug that when some cores are closed the reg doesn't work
         reg2 = re.compile(
-            r'RAM (\d+).+?CPU \[(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+)\] EMC_FREQ (\d+)%@.+?GR3D_FREQ (\d+)%')
+            r'RAM (\d+).+?CPU \[(.+?)\] EMC_FREQ (\d+)%@.+?GR3D_FREQ (\d+)%')
     else:
-        reg2 = re.compile(r'RAM (\d+).+?cpu \[(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+),(\d+)%@(\d+)\] EMC (\d+)%@.+?GR3D (\d+)%')
+        reg2 = re.compile(
+            r'RAM (\d+).+?cpu \[(.+?)\] EMC (\d+)%@.+?GR3D (\d+)%')
+    reg_cpu = re.compile(r'(\d+)\%@(\d+)')
     result = reg.findall(content)
     status = Status()
     if result:
@@ -48,11 +52,20 @@ def filter_content_from_raw_log(start_time, end_time, file_path):
         if result2:
             for line in result2:
                 status.ram.append(int(line[0]))
-                for i in range(6):
-                    status.cpu_utilization[i].append(int(line[i * 2 + 1]))
-                    status.cpu_freq[i].append(int(line[i * 2 + 2]))
-                status.emc.append(int(line[13]))
-                status.gpu.append(int(line[14]))
+                # cpu status
+                temp_cpus = line[1].split(',')
+                for i, a_cpu in enumerate(temp_cpus):
+                    cpu_result = reg_cpu.findall(a_cpu)
+                    if cpu_result:
+                        cpu_result = cpu_result[0]
+                        status.cpu_utilization[i].append(int(cpu_result[0]))
+                        status.cpu_freq[i].append(int(cpu_result[1]))
+                    else:
+                        # this core is closed.
+                        status.cpu_utilization[i].append(0)
+                        status.cpu_freq[i].append(0)
+                status.emc.append(int(line[2]))
+                status.gpu.append(int(line[3]))
         else:
             print("没有符合条件的输出-2")
     else:
